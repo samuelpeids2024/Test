@@ -39,7 +39,7 @@ messaging.onBackgroundMessage(function(payload) {
   const notificationOptions = {
     body: payload.notification.body,
     icon: payload.notification.icon, // 或指定一個圖示
-    data: { sound: "./notification.mp3"}
+    sound: payload.data.sound
   };
 
   self.registration.showNotification(notificationTitle,
