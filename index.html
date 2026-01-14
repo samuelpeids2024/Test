@@ -9,52 +9,7 @@
     <p id="status">正在請求權限...</p>
     <p>您的 Token (可用於發送測試通知):</p>
     <textarea id="token-display" style="width:100%; height:100px;" readonly></textarea>
-    <script>
-         // Give the service worker access to Firebase Messaging.
- // Note that you can only use Firebase Messaging here. Other Firebase libraries
- // are not available in the service worker.
- importScripts('https://www.gstatic.com/firebasejs/9.2.0/firebase-app-compat.js');
- importScripts('https://www.gstatic.com/firebasejs/9.2.0/firebase-messaging-compat.js');
-
- // Initialize the Firebase app in the service worker by passing in
- // your app's Firebase config object.
- // https://firebase.google.com/docs/web/setup#config-object
- firebase.initializeApp({
-   apiKey: "AIzaSyDRAx0uqdvxFqbrcxDvCeYt1Z1EUsTFVE8",
-   authDomain: "reminderapp-b689e.firebaseapp.com",
-   projectId: "reminderapp-b689e",
-   storageBucket: "reminderapp-b689e.firebasestorage.app",
-   messagingSenderId: "544877244820",
-   appId: "1:544877244820:web:bd1e52c24ecf7cfe365f81",
-   measurementId: "G-ZY0WC3M9Z1"
- });
-
- // Retrieve an instance of Firebase Messaging so that it can handle background
- // messages.
- const messaging = firebase.messaging();
-
-
-
-// If you would like to customize notifications that are received in the
-// background (Web app is closed or not in browser focus) then you should
-// implement this optional method.
-// Keep in mind that FCM will still show notification messages automatically 
-// and you should use data messages for custom notifications.
-// For more info see: 
-// https://firebase.google.com/docs/cloud-messaging/concept-options
-messaging.onBackgroundMessage(function(payload) {
-  console.log('[firebase-messaging-sw.js] Received background message ', payload);
-  // Customize notification here
-  const notificationTitle = 'Background Message Title';
-  const notificationOptions = {
-    body: 'Background Message body.',
-    icon: './firebase-logo.png'
-  };
-
-  self.registration.showNotification(notificationTitle,
-    notificationOptions);
-});
-    </script>
+    
     <!-- 引入 Firebase SDK 模組 -->
     <script type="module">
 
@@ -85,6 +40,7 @@ messaging.onBackgroundMessage(function(payload) {
             try {
                 const permission = await Notification.requestPermission();
                 if (permission === 'granted') {
+                    const registration = await navigator.serviceWorker.register('./firebase-messaging-sw.js');
                     // 注意：'YOUR_PUBLIC_VAPID_KEY' 需從 Firebase 控制台取得
                     const token = await getToken(messaging, { 
                         vapidKey: 'BHc46KlLoJvBJrCCjDERNc7lJr453G6P54pod_NaQjjdy2z_F-0awf1nEN8ncGVS7JzIVsk9lLHfs6TrphZmxgY' 
