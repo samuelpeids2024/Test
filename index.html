@@ -9,7 +9,7 @@
     <p id="status">正在請求權限...</p>
     <p>您的 Token (可用於發送測試通知):</p>
     <textarea id="token-display" style="width:100%; height:100px;" readonly></textarea>
-    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vConsole/3.15.1/vconsole.min.js" integrity="sha512-45r3PcQfwT69iG1BwGOOZKjNKDIlT4fp8A/auHloAAajP0/HXFFGgtX2jHZVIfhjmaXcXVTRSlGu1OSajP7gzQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <!-- 引入 Firebase SDK 模組 -->
     <script type="module">
 
@@ -92,9 +92,15 @@
         // 4. 監聽前台訊息 (網頁開著時收到通知)
         onMessage(messaging, (payload) => {
             console.log('收到前台訊息: ', payload);
+            var vConsole = new window.VConsole();
             if (payload.data && payload.data.sound) {
                 playCustomSound(payload.data.sound);
-                navigator.vibrate(2000);
+                if ('vibrate' in navigator) {
+                  console.log('瀏覽器支援震動 API');
+                    navigator.vibrate(2000);
+                } else {
+                  console.log('不支援震動 API');
+                }
               }
             alert(`收到通知：${payload.notification.title}\n${payload.notification.body}`);
         });
