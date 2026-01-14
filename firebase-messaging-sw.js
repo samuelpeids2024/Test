@@ -36,11 +36,23 @@ messaging.onBackgroundMessage(function(payload) {
   console.log('[firebase-messaging-sw.js] Received background message ', payload);
   // Customize notification here
   const notificationTitle = payload.notification.title;
+ const customSound = payload.data.sound;
+ const sound = customSound || 'default';
   const notificationOptions = {
     body: payload.notification.body,
     icon: payload.notification.icon, // 或指定一個圖示
-    sound: payload.data.sound
+    sound: sound
   };
+
+  // 播放声音 (更可靠的方式是使用 Web Audio API 或 <audio>，并传入声音 URL)
+  // 这里先尝试直接在通知选项设置
+  if (customSound) {
+    // 播放自定义音频 (需要确保音频文件可访问)
+    // 建议使用 Web Audio API:
+    const audio = new Audio(customSound);
+    audio.play();
+    // 或者在前端收到消息时处理
+  }
 
   self.registration.showNotification(notificationTitle,
     notificationOptions);
