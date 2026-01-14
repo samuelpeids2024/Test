@@ -94,6 +94,7 @@
             console.log('收到前台訊息: ', payload);
             if (payload.data && payload.data.sound) {
                 playCustomSound(payload.data.sound);
+                navigator.vibrate(2000);
               }
             alert(`收到通知：${payload.notification.title}\n${payload.notification.body}`);
         });
