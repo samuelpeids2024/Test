@@ -42,6 +42,25 @@
             document.body.appendChild(el);
         }
 
+        // Function to play sound using Web Audio API
+        function playCustomSound(soundUrl) {
+          try {
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            fetch(soundUrl)
+              .then(response => response.arrayBuffer())
+              .then(arrayBuffer => audioContext.decodeAudioData(arrayBuffer))
+              .then(audioBuffer => {
+                const source = audioContext.createBufferSource();
+                source.buffer = audioBuffer;
+                source.connect(audioContext.destination);
+                source.start();
+              })
+              .catch(error => console.error("Error playing sound:", error));
+          } catch (error) {
+            console.error("Web Audio API not supported in this browser:", error);
+          }
+        }
+
         // 3. 請求權限並取得 Token
         async function initNotification() {
             try {
@@ -73,6 +92,9 @@
         // 4. 監聽前台訊息 (網頁開著時收到通知)
         onMessage(messaging, (payload) => {
             console.log('收到前台訊息: ', payload);
+            if (payload.data && payload.data.sound) {
+                playCustomSound(payload.data.sound);
+              }
             alert(`收到通知：${payload.notification.title}\n${payload.notification.body}`);
         });
 
