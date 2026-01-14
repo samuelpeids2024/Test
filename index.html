@@ -12,8 +12,10 @@
 
     <!-- 引入 Firebase SDK 模組 -->
     <script type="module">
-        import { initializeApp } from "www.gstatic.com";
-        import { getMessaging, getToken, onMessage } from "www.gstatic.com";
+
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
+    import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-messaging.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-analytics.js";
 
         // 1. Firebase 配置 (與 SW 檔案中相同)
         const firebaseConfig = {
