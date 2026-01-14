@@ -43,7 +43,8 @@
                     const registration = await navigator.serviceWorker.register('./firebase-messaging-sw.js');
                     // 注意：'YOUR_PUBLIC_VAPID_KEY' 需從 Firebase 控制台取得
                     const token = await getToken(messaging, { 
-                        vapidKey: 'BHc46KlLoJvBJrCCjDERNc7lJr453G6P54pod_NaQjjdy2z_F-0awf1nEN8ncGVS7JzIVsk9lLHfs6TrphZmxgY' 
+                        vapidKey: 'BHc46KlLoJvBJrCCjDERNc7lJr453G6P54pod_NaQjjdy2z_F-0awf1nEN8ncGVS7JzIVsk9lLHfs6TrphZmxgY' ,
+                        serviceWorkerRegistration: registration
                     });
                     
                     if (token) {
