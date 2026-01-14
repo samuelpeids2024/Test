@@ -35,6 +35,13 @@
         const statusEl = document.getElementById('status');
         const tokenEl = document.getElementById('token-display');
 
+        // 在 script 加入這個輔助函數
+        function logToScreen(message) {
+            const el = document.createElement('p');
+            el.innerText = `> ${message}`;
+            document.body.appendChild(el);
+        }
+
         // 3. 請求權限並取得 Token
         async function initNotification() {
             try {
@@ -58,6 +65,7 @@
                 }
             } catch (err) {
                 console.error('初始化失敗', err);
+                logToScreen("發生錯誤: " + error.message);
                 statusEl.innerText = "發生錯誤，請查看控制台。";
             }
         }
