@@ -40,6 +40,7 @@ messaging.onBackgroundMessage(function(payload) {
  const sound = customSound || 'default';
   const notificationOptions = {
     body: payload.notification.body,
+    vibrate: [200, 100, 200], // 震動 200ms, 停 100ms, 再震動 200ms
     icon: payload.notification.icon // 或指定一個圖示
   };
 
