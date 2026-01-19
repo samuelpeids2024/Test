@@ -1,111 +1,2693 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>Firebase FCM 單頁測試</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>家庭健康提醒 - FamilyCare Pro</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="manifest" href="manifest.json">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #4a6fa5;
+            --secondary-color: #6b8cbc;
+            --accent-color: #ff7e5f;
+            --light-color: #f8f9fa;
+            --dark-color: #343a40;
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+            --info-color: #17a2b8;
+            --border-radius: 10px;
+            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background-color: #f5f7fa;
+            color: var(--dark-color);
+            line-height: 1.6;
+            min-height: 100vh;
+            padding-bottom: 80px;
+        }
+
+        .container {
+            max-width: 100%;
+            padding: 0 15px;
+        }
+
+        /* 头部样式 */
+        header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 15px 20px;
+            box-shadow: var(--box-shadow);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .logo i {
+            margin-right: 10px;
+            font-size: 1.8rem;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: white;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        /* 通知图标 */
+        .notification-bell {
+            position: relative;
+            margin-right: 15px;
+            cursor: pointer;
+            font-size: 1.2rem;
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background-color: var(--danger-color);
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 0.7rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* 语言切换 */
+        .language-switcher {
+            display: flex;
+            margin-right: 15px;
+        }
+
+        .lang-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 0 2px;
+            font-size: 0.8rem;
+        }
+
+        .lang-btn.active {
+            background: white;
+            color: var(--primary-color);
+        }
+
+        /* 主内容区域 */
+        main {
+            padding: 20px 0;
+        }
+
+        /* 标签页样式 */
+        .tabs {
+            display: flex;
+            background-color: white;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            margin-bottom: 20px;
+            box-shadow: var(--box-shadow);
+        }
+
+        .tab {
+            flex: 1;
+            text-align: center;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        .tab.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* 卡片样式 */
+        .card {
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: var(--box-shadow);
+        }
+
+        .card-title {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+        }
+
+        .card-title i {
+            margin-right: 10px;
+            font-size: 1.2rem;
+        }
+
+        /* 按钮样式 */
+        .btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-weight: 500;
+            transition: background-color 0.3s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn i {
+            margin-right: 8px;
+        }
+
+        .btn:hover {
+            background-color: var(--secondary-color);
+        }
+
+        .btn-success {
+            background-color: var(--success-color);
+        }
+
+        .btn-warning {
+            background-color: var(--warning-color);
+            color: var(--dark-color);
+        }
+
+        .btn-danger {
+            background-color: var(--danger-color);
+        }
+
+        .btn-info {
+            background-color: var(--info-color);
+        }
+
+        .btn-sm {
+            padding: 5px 10px;
+            font-size: 0.9rem;
+        }
+
+        /* 表单样式 */
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            font-family: 'Noto Sans SC', sans-serif;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .form-row {
+            display: flex;
+            gap: 15px;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+        }
+
+        /* 提醒事项列表 */
+        .reminder-list {
+            list-style: none;
+        }
+
+        .reminder-item {
+            padding: 15px;
+            border-left: 4px solid var(--primary-color);
+            background-color: #f8f9fa;
+            margin-bottom: 10px;
+            border-radius: 0 var(--border-radius) var(--border-radius) 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .reminder-item.warning {
+            border-left-color: var(--warning-color);
+        }
+
+        .reminder-item.danger {
+            border-left-color: var(--danger-color);
+        }
+
+        .reminder-item.success {
+            border-left-color: var(--success-color);
+        }
+
+        .reminder-item.info {
+            border-left-color: var(--info-color);
+        }
+
+        .reminder-info h4 {
+            margin-bottom: 5px;
+            color: var(--dark-color);
+        }
+
+        .reminder-meta {
+            display: flex;
+            flex-wrap: wrap;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .reminder-meta span {
+            margin-right: 15px;
+            margin-bottom: 5px;
+        }
+
+        .reminder-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+
+        .status-badge {
+            padding: 3px 8px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            margin-right: 10px;
+        }
+
+        .status-pending {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .status-active {
+            background-color: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .status-completed {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .status-overdue {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .status-snoozed {
+            background-color: #e2e3e5;
+            color: #383d41;
+        }
+
+        /* 语音提醒区域 */
+        .voice-alert {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: var(--warning-color);
+            padding: 15px 20px;
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+            z-index: 1001;
+        }
+
+        .voice-alert.active {
+            display: flex;
+        }
+
+        .voice-alert-content {
+            display: flex;
+            align-items: center;
+        }
+
+        .voice-alert i {
+            font-size: 1.5rem;
+            margin-right: 15px;
+            color: var(--dark-color);
+        }
+
+        .voice-alert-text {
+            font-weight: 500;
+        }
+
+        /* 底部导航 */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: white;
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #666;
+            text-decoration: none;
+            font-size: 0.8rem;
+        }
+
+        .nav-item.active {
+            color: var(--primary-color);
+        }
+
+        .nav-item i {
+            font-size: 1.2rem;
+            margin-bottom: 5px;
+        }
+
+        /* 模态框样式 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background-color: white;
+            border-radius: var(--border-radius);
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #666;
+        }
+
+        /* 高级提醒选项 */
+        .advanced-options {
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            padding: 15px;
+            margin-top: 15px;
+            background-color: #f8f9fa;
+        }
+
+        .advanced-header {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            margin-bottom: 10px;
+        }
+
+        .advanced-header i {
+            transition: transform 0.3s;
+            margin-right: 10px;
+        }
+
+        .advanced-header.active i {
+            transform: rotate(90deg);
+        }
+
+        .advanced-content {
+            display: none;
+            padding-top: 10px;
+        }
+
+        .advanced-content.active {
+            display: block;
+        }
+
+        /* 通知列表 */
+        .notification-list {
+            list-style: none;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .notification-item {
+            padding: 10px 15px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            align-items: center;
+        }
+
+        .notification-item.unread {
+            background-color: #f0f7ff;
+        }
+
+        .notification-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-size: 1.2rem;
+        }
+
+        .notification-icon.reminder {
+            background-color: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .notification-icon.request {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .notification-icon.system {
+            background-color: #e2e3e5;
+            color: #383d41;
+        }
+
+        .notification-content {
+            flex: 1;
+        }
+
+        .notification-time {
+            font-size: 0.8rem;
+            color: #888;
+            margin-top: 3px;
+        }
+
+        /* 连接状态指示器 */
+        .connection-status {
+            display: flex;
+            align-items: center;
+            font-size: 0.9rem;
+            margin-right: 15px;
+        }
+
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+
+        .status-online {
+            background-color: var(--success-color);
+        }
+
+        .status-offline {
+            background-color: var(--danger-color);
+        }
+
+        /* 响应式调整 */
+        @media (min-width: 768px) {
+            .container {
+                max-width: 750px;
+                margin: 0 auto;
+            }
+            
+            .tabs {
+                max-width: 500px;
+                margin-left: auto;
+                margin-right: auto;
+            }
+        }
+    </style>
 </head>
 <body>
-    <h1>FCM 推播測試</h1>
-    <p id="status">正在請求權限...</p>
-    <p>您的 Token (可用於發送測試通知):</p>
-    <textarea id="token-display" style="width:100%; height:100px;" readonly></textarea>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/vConsole/3.15.1/vconsole.min.js" integrity="sha512-45r3PcQfwT69iG1BwGOOZKjNKDIlT4fp8A/auHloAAajP0/HXFFGgtX2jHZVIfhjmaXcXVTRSlGu1OSajP7gzQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <!-- 引入 Firebase SDK 模組 -->
-    <script type="module">
+    <!-- 头部 -->
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-heartbeat"></i>
+                    <span>FamilyCare Pro</span>
+                </div>
+                <div class="user-info">
+                    <div class="connection-status">
+                        <span class="status-indicator status-online" id="connectionIndicator"></span>
+                        <span id="connectionText">在线</span>
+                    </div>
+                    <div class="language-switcher">
+                        <button class="lang-btn active" data-lang="zh">中文</button>
+                        <button class="lang-btn" data-lang="en">English</button>
+                    </div>
+                    <div class="notification-bell" id="notificationBell">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-badge" id="notificationCount">0</span>
+                    </div>
+                    <div class="user-avatar" id="userAvatar">U</div>
+                </div>
+            </div>
+        </div>
+    </header>
 
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
-    import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-messaging.js";
-    import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-analytics.js";
+    <!-- 主内容区域 -->
+    <main class="container">
+        <!-- 标签页导航 -->
+        <div class="tabs">
+            <div class="tab active" data-tab="reminders">我的提醒</div>
+            <div class="tab" data-tab="people">提醒人员</div>
+            <div class="tab" data-tab="statistics">统计</div>
+            <div class="tab" data-tab="settings">设置</div>
+        </div>
 
-        // 1. Firebase 配置 (與 SW 檔案中相同)
+        <!-- 提醒事项标签页 -->
+        <div id="reminders-tab" class="tab-content active">
+            <div class="card">
+                <div class="card-title">
+                    <i class="fas fa-bell"></i>
+                    <h3>今日提醒事项</h3>
+                </div>
+                <ul class="reminder-list" id="todayReminders">
+                    <!-- 今日提醒事项将通过JS动态添加 -->
+                </ul>
+            </div>
+
+            <div class="card">
+                <div class="card-title">
+                    <i class="fas fa-calendar-alt"></i>
+                    <h3>所有提醒事项</h3>
+                </div>
+                <button class="btn" id="addReminderBtn">
+                    <i class="fas fa-plus"></i> 添加新提醒
+                </button>
+                <div class="form-row" style="margin-top: 15px;">
+                    <div class="form-group">
+                        <select class="form-control" id="reminderFilter">
+                            <option value="all">所有状态</option>
+                            <option value="active">进行中</option>
+                            <option value="pending">待处理</option>
+                            <option value="completed">已完成</option>
+                            <option value="overdue">已过期</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <select class="form-control" id="reminderSort">
+                            <option value="time">按时间排序</option>
+                            <option value="priority">按优先级排序</option>
+                            <option value="title">按标题排序</option>
+                        </select>
+                    </div>
+                </div>
+                <ul class="reminder-list" id="allReminders">
+                    <!-- 所有提醒事项将通过JS动态添加 -->
+                </ul>
+            </div>
+        </div>
+
+        <!-- 提醒人员标签页 -->
+        <div id="people-tab" class="tab-content">
+            <div class="card">
+                <div class="card-title">
+                    <i class="fas fa-users"></i>
+                    <h3>我的提醒人员</h3>
+                </div>
+                <button class="btn" id="addPersonBtn">
+                    <i class="fas fa-user-plus"></i> 添加提醒人员
+                </button>
+                <ul class="reminder-list" id="peopleList">
+                    <!-- 提醒人员列表将通过JS动态添加 -->
+                </ul>
+            </div>
+
+            <div class="card">
+                <div class="card-title">
+                    <i class="fas fa-user-clock"></i>
+                    <h3>待处理的请求</h3>
+                </div>
+                <ul class="reminder-list" id="pendingRequests">
+                    <!-- 待处理请求将通过JS动态添加 -->
+                </ul>
+            </div>
+        </div>
+
+        <!-- 统计标签页 -->
+        <div id="statistics-tab" class="tab-content">
+            <div class="card">
+                <div class="card-title">
+                    <i class="fas fa-chart-bar"></i>
+                    <h3>提醒统计</h3>
+                </div>
+                <div id="statsContent">
+                    <p>加载统计数据...</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">
+                    <i class="fas fa-calendar-check"></i>
+                    <h3>遵守记录</h3>
+                </div>
+                <div id="complianceChart">
+                    <p>加载遵守记录图表...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 设置标签页 -->
+        <div id="settings-tab" class="tab-content">
+            <div class="card">
+                <div class="card-title">
+                    <i class="fas fa-cog"></i>
+                    <h3>应用设置</h3>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">通知音量</label>
+                    <input type="range" class="form-control" id="volumeControl" min="0" max="100" value="80">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">重复提醒间隔 (秒)</label>
+                    <input type="number" class="form-control" id="repeatInterval" min="5" max="60" value="10">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">
+                        <input type="checkbox" id="autoStartReminders" checked> 自动开始提醒
+                    </label>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">
+                        <input type="checkbox" id="enablePushNotifications"> 启用推送通知
+                    </label>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">
+                        <input type="checkbox" id="enableReminderSnooze"> 启用稍后提醒功能
+                    </label>
+                </div>
+                <button class="btn" id="saveSettingsBtn">
+                    <i class="fas fa-save"></i> 保存设置
+                </button>
+            </div>
+
+            <div class="card">
+                <div class="card-title">
+                    <i class="fas fa-user"></i>
+                    <h3>个人资料</h3>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">姓名</label>
+                    <input type="text" class="form-control" id="userName" value="用户姓名">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">电子邮件</label>
+                    <input type="email" class="form-control" id="userEmail" value="user@example.com">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">时区</label>
+                    <select class="form-control" id="userTimezone">
+                        <option value="Asia/Shanghai">中国标准时间 (UTC+8)</option>
+                        <option value="America/New_York">美国东部时间 (UTC-5)</option>
+                        <option value="Europe/London">格林威治标准时间 (UTC+0)</option>
+                        <option value="Asia/Tokyo">日本标准时间 (UTC+9)</option>
+                    </select>
+                </div>
+                <button class="btn" id="updateProfileBtn">
+                    <i class="fas fa-user-edit"></i> 更新资料
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <!-- 语音提醒区域 -->
+    <div class="voice-alert" id="voiceAlert">
+        <div class="voice-alert-content">
+            <i class="fas fa-bell"></i>
+            <div class="voice-alert-text" id="alertText">早上7点服药</div>
+        </div>
+        <div>
+            <button class="btn btn-success" id="dismissAlert">
+                <i class="fas fa-check"></i> 确认
+            </button>
+            <button class="btn btn-warning" id="snoozeAlert">
+                <i class="fas fa-clock"></i> 稍后提醒
+            </button>
+            <button class="btn btn-info" id="viewDetailsAlert">
+                <i class="fas fa-info-circle"></i> 详情
+            </button>
+        </div>
+    </div>
+
+    <!-- 底部导航 -->
+    <div class="bottom-nav">
+        <a href="#" class="nav-item active" data-tab="reminders">
+            <i class="fas fa-bell"></i>
+            <span>提醒</span>
+        </a>
+        <a href="#" class="nav-item" data-tab="people">
+            <i class="fas fa-users"></i>
+            <span>人员</span>
+        </a>
+        <a href="#" class="nav-item" data-tab="statistics">
+            <i class="fas fa-chart-bar"></i>
+            <span>统计</span>
+        </a>
+        <a href="#" class="nav-item" data-tab="settings">
+            <i class="fas fa-cog"></i>
+            <span>设置</span>
+        </a>
+    </div>
+
+    <!-- 添加提醒模态框 -->
+    <div class="modal" id="addReminderModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">添加新提醒</div>
+                <button class="close-modal" id="closeReminderModal">&times;</button>
+            </div>
+            <form id="reminderForm">
+                <div class="form-group">
+                    <label class="form-label">提醒标题 *</label>
+                    <input type="text" class="form-control" id="reminderTitle" placeholder="例如：早上7点服药" required>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">提醒时间 *</label>
+                        <input type="time" class="form-control" id="reminderTime" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">开始日期</label>
+                        <input type="date" class="form-control" id="reminderStartDate">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">重复频率 *</label>
+                    <select class="form-control" id="reminderRepeat" required>
+                        <option value="once">仅一次</option>
+                        <option value="daily" selected>每天</option>
+                        <option value="weekly">每周</option>
+                        <option value="weekdays">工作日</option>
+                        <option value="custom">自定义</option>
+                    </select>
+                </div>
+                
+                <div id="customRepeatOptions" style="display: none;">
+                    <div class="form-group">
+                        <label class="form-label">重复间隔 (天)</label>
+                        <input type="number" class="form-control" id="customRepeatDays" min="1" max="30" value="1">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">重复次数</label>
+                        <input type="number" class="form-control" id="customRepeatCount" min="1" value="10">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">提醒对象 *</label>
+                    <select class="form-control" id="reminderPerson" required>
+                        <option value="">选择提醒对象</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">优先级</label>
+                    <select class="form-control" id="reminderPriority">
+                        <option value="low">低</option>
+                        <option value="medium" selected>中</option>
+                        <option value="high">高</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">提醒描述</label>
+                    <textarea class="form-control" id="reminderDescription" rows="3" placeholder="添加更多描述信息..."></textarea>
+                </div>
+                
+                <div class="advanced-options">
+                    <div class="advanced-header" id="advancedOptionsHeader">
+                        <i class="fas fa-chevron-right"></i>
+                        <span>高级选项</span>
+                    </div>
+                    <div class="advanced-content" id="advancedOptionsContent">
+                        <div class="form-group">
+                            <label class="form-label">提前提醒</label>
+                            <select class="form-control" id="reminderAdvance">
+                                <option value="0">准时提醒</option>
+                                <option value="5">提前5分钟</option>
+                                <option value="10">提前10分钟</option>
+                                <option value="15">提前15分钟</option>
+                                <option value="30">提前30分钟</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">截止日期</label>
+                            <input type="date" class="form-control" id="reminderEndDate">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">
+                                <input type="checkbox" id="reminderRequireConfirmation"> 需要确认
+                            </label>
+                            <small class="form-text">开启后，被提醒者必须手动确认完成</small>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">
+                                <input type="checkbox" id="reminderAllowSnooze"> 允许稍后提醒
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn" style="margin-top: 15px;">
+                    <i class="fas fa-plus"></i> 创建提醒
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 添加人员模态框 -->
+    <div class="modal" id="addPersonModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">添加提醒人员</div>
+                <button class="close-modal" id="closePersonModal">&times;</button>
+            </div>
+            <form id="personForm">
+                <div class="form-group">
+                    <label class="form-label">人员姓名 *</label>
+                    <input type="text" class="form-control" id="personName" placeholder="输入人员姓名" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">电子邮件 *</label>
+                    <input type="email" class="form-control" id="personEmail" placeholder="输入人员电子邮件" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">关系</label>
+                    <select class="form-control" id="personRelationship">
+                        <option value="parent">父母</option>
+                        <option value="child">子女</option>
+                        <option value="spouse">配偶</option>
+                        <option value="relative">亲属</option>
+                        <option value="friend">朋友</option>
+                        <option value="other">其他</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">权限</label>
+                    <select class="form-control" id="personPermissions">
+                        <option value="view">仅查看提醒</option>
+                        <option value="manage" selected>管理提醒</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn">
+                    <i class="fas fa-user-plus"></i> 发送邀请
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 通知中心模态框 -->
+    <div class="modal" id="notificationModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">通知中心</div>
+                <button class="close-modal" id="closeNotificationModal">&times;</button>
+            </div>
+            <div>
+                <button class="btn btn-sm" id="markAllRead" style="margin-bottom: 15px;">
+                    <i class="fas fa-check-double"></i> 全部标记为已读
+                </button>
+                <ul class="notification-list" id="notificationList">
+                    <!-- 通知列表将通过JS动态添加 -->
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/12.7.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/12.7.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/12.7.0/firebase-messaging-compat.js"></script>
+    
+    <script>
+        // Firebase配置 - 请替换为您的实际配置
         const firebaseConfig = {
-          apiKey: "AIzaSyDRAx0uqdvxFqbrcxDvCeYt1Z1EUsTFVE8",
-          authDomain: "reminderapp-b689e.firebaseapp.com",
-          projectId: "reminderapp-b689e",
-          storageBucket: "reminderapp-b689e.firebasestorage.app",
-          messagingSenderId: "544877244820",
-          appId: "1:544877244820:web:bd1e52c24ecf7cfe365f81",
-          measurementId: "G-ZY0WC3M9Z1"
+            apiKey: "AIzaSyDRAx0uqdvxFqbrcxDvCeYt1Z1EUsTFVE8",
+            authDomain: "reminderapp-b689e.firebaseapp.com",
+            projectId: "reminderapp-b689e",
+            storageBucket: "reminderapp-b689e.firebasestorage.app",
+            messagingSenderId: "544877244820",
+            appId: "1:544877244820:web:bd1e52c24ecf7cfe365f81",
+			measurementId: "G-ZY0WC3M9Z1"
         };
 
-        // 2. 初始化 Firebase
-        const app = initializeApp(firebaseConfig);
-        const messaging = getMessaging(app);
+        // 初始化Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        const messaging = firebase.messaging();
 
-        const statusEl = document.getElementById('status');
-        const tokenEl = document.getElementById('token-display');
+        // 多语言文本
+        const translations = {
+            zh: {
+                appTitle: "家庭健康提醒 Pro",
+                myReminders: "我的提醒",
+                todayReminders: "今日提醒事项",
+                allReminders: "所有提醒事项",
+                addNewReminder: "添加新提醒",
+                reminderPeople: "提醒人员",
+                myReminderPeople: "我的提醒人员",
+                addReminderPerson: "添加提醒人员",
+                pendingRequests: "待处理的请求",
+                statistics: "统计",
+                settings: "设置",
+                appSettings: "应用设置",
+                notificationVolume: "通知音量",
+                repeatInterval: "重复提醒间隔 (秒)",
+                autoStartReminders: "自动开始提醒",
+                saveSettings: "保存设置",
+                personalInfo: "个人资料",
+                name: "姓名",
+                email: "电子邮件",
+                timezone: "时区",
+                updateProfile: "更新资料",
+                reminderTitle: "提醒标题",
+                reminderTime: "提醒时间",
+                startDate: "开始日期",
+                repeatFrequency: "重复频率",
+                reminderPerson: "提醒对象",
+                reminderDescription: "提醒描述",
+                createReminder: "创建提醒",
+                personName: "人员姓名",
+                personEmail: "电子邮件",
+                relationship: "关系",
+                permissions: "权限",
+                sendInvitation: "发送邀请",
+                statusActive: "进行中",
+                statusPending: "待处理",
+                statusCompleted: "已完成",
+                statusOverdue: "已过期",
+                statusSnoozed: "已延期",
+                from: "来自",
+                daily: "每天",
+                weekly: "每周",
+                weekdays: "工作日",
+                once: "仅一次",
+                custom: "自定义",
+                accept: "接受",
+                reject: "拒绝",
+                complete: "完成",
+                confirm: "确认",
+                snooze: "稍后提醒",
+                viewDetails: "详情",
+                parent: "父母",
+                child: "子女",
+                spouse: "配偶",
+                relative: "亲属",
+                friend: "朋友",
+                other: "其他",
+                priority: "优先级",
+                low: "低",
+                medium: "中",
+                high: "高",
+                advancedOptions: "高级选项",
+                advanceReminder: "提前提醒",
+                endDate: "截止日期",
+                requireConfirmation: "需要确认",
+                allowSnooze: "允许稍后提醒",
+                notificationCenter: "通知中心",
+                markAllRead: "全部标记为已读",
+                online: "在线",
+                offline: "离线",
+                enablePushNotifications: "启用推送通知",
+                enableReminderSnooze: "启用稍后提醒功能",
+                allStatus: "所有状态",
+                sortByTime: "按时间排序",
+                sortByPriority: "按优先级排序",
+                sortByTitle: "按标题排序",
+                reminderStatistics: "提醒统计",
+                complianceRecord: "遵守记录"
+            },
+            en: {
+                appTitle: "Family Health Reminder Pro",
+                myReminders: "My Reminders",
+                todayReminders: "Today's Reminders",
+                allReminders: "All Reminders",
+                addNewReminder: "Add New Reminder",
+                reminderPeople: "Reminder People",
+                myReminderPeople: "My Reminder People",
+                addReminderPerson: "Add Reminder Person",
+                pendingRequests: "Pending Requests",
+                statistics: "Statistics",
+                settings: "Settings",
+                appSettings: "App Settings",
+                notificationVolume: "Notification Volume",
+                repeatInterval: "Repeat Interval (seconds)",
+                autoStartReminders: "Auto Start Reminders",
+                saveSettings: "Save Settings",
+                personalInfo: "Personal Information",
+                name: "Name",
+                email: "Email",
+                timezone: "Timezone",
+                updateProfile: "Update Profile",
+                reminderTitle: "Reminder Title",
+                reminderTime: "Reminder Time",
+                startDate: "Start Date",
+                repeatFrequency: "Repeat Frequency",
+                reminderPerson: "Reminder Person",
+                reminderDescription: "Reminder Description",
+                createReminder: "Create Reminder",
+                personName: "Person Name",
+                personEmail: "Email",
+                relationship: "Relationship",
+                permissions: "Permissions",
+                sendInvitation: "Send Invitation",
+                statusActive: "Active",
+                statusPending: "Pending",
+                statusCompleted: "Completed",
+                statusOverdue: "Overdue",
+                statusSnoozed: "Snoozed",
+                from: "From",
+                daily: "Daily",
+                weekly: "Weekly",
+                weekdays: "Weekdays",
+                once: "Once",
+                custom: "Custom",
+                accept: "Accept",
+                reject: "Reject",
+                complete: "Complete",
+                confirm: "Confirm",
+                snooze: "Snooze",
+                viewDetails: "View Details",
+                parent: "Parent",
+                child: "Child",
+                spouse: "Spouse",
+                relative: "Relative",
+                friend: "Friend",
+                other: "Other",
+                priority: "Priority",
+                low: "Low",
+                medium: "Medium",
+                high: "High",
+                advancedOptions: "Advanced Options",
+                advanceReminder: "Advance Reminder",
+                endDate: "End Date",
+                requireConfirmation: "Require Confirmation",
+                allowSnooze: "Allow Snooze",
+                notificationCenter: "Notification Center",
+                markAllRead: "Mark All Read",
+                online: "Online",
+                offline: "Offline",
+                enablePushNotifications: "Enable Push Notifications",
+                enableReminderSnooze: "Enable Reminder Snooze",
+                allStatus: "All Status",
+                sortByTime: "Sort by Time",
+                sortByPriority: "Sort by Priority",
+                sortByTitle: "Sort by Title",
+                reminderStatistics: "Reminder Statistics",
+                complianceRecord: "Compliance Record"
+            }
+        };
 
-        // 在 script 加入這個輔助函數
-        function logToScreen(message) {
-            const el = document.createElement('p');
-            el.innerText = `> ${message}`;
-            document.body.appendChild(el);
-        }
+        // 当前语言
+        let currentLang = 'zh';
 
-        // Function to play sound using Web Audio API
-        function playCustomSound(soundUrl) {
-          try {
-            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            fetch(soundUrl)
-              .then(response => response.arrayBuffer())
-              .then(arrayBuffer => audioContext.decodeAudioData(arrayBuffer))
-              .then(audioBuffer => {
-                const source = audioContext.createBufferSource();
-                source.buffer = audioBuffer;
-                source.connect(audioContext.destination);
-                source.start();
-              })
-              .catch(error => console.error("Error playing sound:", error));
-          } catch (error) {
-            console.error("Web Audio API not supported in this browser:", error);
-          }
-        }
+        // 模拟数据存储
+        let mockReminders = [];
+        let mockPeople = [];
+        let mockNotifications = [];
+        let mockUsers = [];
+        let currentUser = null;
+        
+        // 语音提醒相关
+        let voiceAlertInterval;
+        let currentAlertText = "";
+        let currentAlertReminder = null;
+        
+        // 推送通知相关
+        let isPushEnabled = false;
+        let serviceWorkerRegistration = null;
 
-        // 3. 請求權限並取得 Token
-        async function initNotification() {
-            try {
-                const permission = await Notification.requestPermission();
-                if (permission === 'granted') {
-                    const registration = await navigator.serviceWorker.register('./firebase-messaging-sw.js');
-                    // 注意：'YOUR_PUBLIC_VAPID_KEY' 需從 Firebase 控制台取得
-                    const token = await getToken(messaging, { 
-                        vapidKey: 'BHc46KlLoJvBJrCCjDERNc7lJr453G6P54pod_NaQjjdy2z_F-0awf1nEN8ncGVS7JzIVsk9lLHfs6TrphZmxgY' ,
-                        serviceWorkerRegistration: registration
-                    });
-                    
-                    if (token) {
-                        tokenEl.value = token;
-                        statusEl.innerText = "權限已允許，Token 取得成功！";
-                    } else {
-                        statusEl.innerText = "無法取得 Token，請檢查配置。";
-                    }
+        // 切换语言
+        function switchLanguage(lang) {
+            currentLang = lang;
+            
+            // 更新语言按钮状态
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                if (btn.dataset.lang === lang) {
+                    btn.classList.add('active');
                 } else {
-                    statusEl.innerText = "使用者拒絕了通知權限。";
+                    btn.classList.remove('active');
                 }
-            } catch (err) {
-                console.error('初始化失敗', err);
-                logToScreen("發生錯誤: " + error.message);
-                statusEl.innerText = "發生錯誤，請查看控制台。";
+            });
+            
+            // 更新所有文本
+            updateTexts();
+        }
+
+        // 更新界面文本
+        function updateTexts() {
+            const t = translations[currentLang];
+            
+            // 更新标题
+            document.title = t.appTitle;
+            
+            // 更新标签页
+            document.querySelectorAll('.tab').forEach((tab, index) => {
+                if (index === 0) tab.textContent = t.myReminders;
+                else if (index === 1) tab.textContent = t.reminderPeople;
+                else if (index === 2) tab.textContent = t.statistics;
+                else if (index === 3) tab.textContent = t.settings;
+            });
+            
+            // 更新卡片标题
+            const cardTitles = document.querySelectorAll('.card-title h3');
+            if (cardTitles.length >= 6) {
+                cardTitles[0].textContent = t.todayReminders;
+                cardTitles[1].textContent = t.allReminders;
+                cardTitles[2].textContent = t.myReminderPeople;
+                cardTitles[3].textContent = t.pendingRequests;
+                cardTitles[4].textContent = t.reminderStatistics;
+                cardTitles[5].textContent = t.complianceRecord;
+                cardTitles[6].textContent = t.appSettings;
+                cardTitles[7].textContent = t.personalInfo;
+            }
+            
+            // 更新按钮
+            const addReminderBtn = document.getElementById('addReminderBtn');
+            const addPersonBtn = document.getElementById('addPersonBtn');
+            const saveSettingsBtn = document.getElementById('saveSettingsBtn');
+            const updateProfileBtn = document.getElementById('updateProfileBtn');
+            
+            if (addReminderBtn) addReminderBtn.innerHTML = `<i class="fas fa-plus"></i> ${t.addNewReminder}`;
+            if (addPersonBtn) addPersonBtn.innerHTML = `<i class="fas fa-user-plus"></i> ${t.addReminderPerson}`;
+            if (saveSettingsBtn) saveSettingsBtn.innerHTML = `<i class="fas fa-save"></i> ${t.saveSettings}`;
+            if (updateProfileBtn) updateProfileBtn.innerHTML = `<i class="fas fa-user-edit"></i> ${t.updateProfile}`;
+            
+            // 更新表单标签
+            document.querySelector('label[for="userName"]').textContent = t.name;
+            document.querySelector('label[for="userEmail"]').textContent = t.email;
+            document.querySelector('label[for="userTimezone"]').textContent = t.timezone;
+            document.querySelector('label[for="reminderTitle"]').textContent = t.reminderTitle;
+            document.querySelector('label[for="reminderTime"]').textContent = t.reminderTime;
+            document.querySelector('label[for="reminderStartDate"]').textContent = t.startDate;
+            document.querySelector('label[for="reminderRepeat"]').textContent = t.repeatFrequency;
+            document.querySelector('label[for="reminderPerson"]').textContent = t.reminderPerson;
+            document.querySelector('label[for="reminderPriority"]').textContent = t.priority;
+            document.querySelector('label[for="reminderDescription"]').textContent = t.reminderDescription;
+            document.querySelector('label[for="personName"]').textContent = t.personName;
+            document.querySelector('label[for="personEmail"]').textContent = t.personEmail;
+            document.querySelector('label[for="personRelationship"]').textContent = t.relationship;
+            document.querySelector('label[for="personPermissions"]').textContent = t.permissions;
+            
+            // 更新模态框标题
+            document.querySelector('#addReminderModal .modal-title').textContent = t.addNewReminder;
+            document.querySelector('#addPersonModal .modal-title').textContent = t.addReminderPerson;
+            document.querySelector('#notificationModal .modal-title').textContent = t.notificationCenter;
+            
+            // 更新按钮文本
+            document.querySelector('#reminderForm button').innerHTML = `<i class="fas fa-plus"></i> ${t.createReminder}`;
+            document.querySelector('#personForm button').innerHTML = `<i class="fas fa-user-plus"></i> ${t.sendInvitation}`;
+            document.querySelector('#markAllRead').innerHTML = `<i class="fas fa-check-double"></i> ${t.markAllRead}`;
+            
+            // 更新提醒状态标签
+            document.querySelectorAll('.status-badge').forEach(badge => {
+                if (badge.classList.contains('status-active')) badge.textContent = t.statusActive;
+                else if (badge.classList.contains('status-pending')) badge.textContent = t.statusPending;
+                else if (badge.classList.contains('status-completed')) badge.textContent = t.statusCompleted;
+                else if (badge.classList.contains('status-overdue')) badge.textContent = t.statusOverdue;
+                else if (badge.classList.contains('status-snoozed')) badge.textContent = t.statusSnoozed;
+            });
+            
+            // 更新提醒元数据
+            document.querySelectorAll('.reminder-meta span').forEach(span => {
+                if (span.innerHTML.includes('来自')) {
+                    span.innerHTML = span.innerHTML.replace('来自', t.from);
+                }
+            });
+            
+            // 更新底部导航
+            const navItems = document.querySelectorAll('.nav-item span');
+            navItems[0].textContent = t.myReminders.split(' ')[0] || t.myReminders;
+            navItems[1].textContent = t.reminderPeople.split(' ')[0] || t.reminderPeople;
+            navItems[2].textContent = t.statistics;
+            navItems[3].textContent = t.settings;
+            
+            // 更新设置选项
+            document.querySelector('label[for="enablePushNotifications"]').innerHTML = `<input type="checkbox" id="enablePushNotifications"> ${t.enablePushNotifications}`;
+            document.querySelector('label[for="enableReminderSnooze"]').innerHTML = `<input type="checkbox" id="enableReminderSnooze"> ${t.enableReminderSnooze}`;
+            
+            // 更新连接状态
+            const connectionText = document.getElementById('connectionText');
+            if (connectionText.textContent === '在线' || connectionText.textContent === 'Online') {
+                connectionText.textContent = t.online;
+            } else if (connectionText.textContent === '离线' || connectionText.textContent === 'Offline') {
+                connectionText.textContent = t.offline;
+            }
+            
+            // 更新过滤器选项
+            const filterSelect = document.getElementById('reminderFilter');
+            if (filterSelect) {
+                filterSelect.innerHTML = `
+                    <option value="all">${t.allStatus}</option>
+                    <option value="active">${t.statusActive}</option>
+                    <option value="pending">${t.statusPending}</option>
+                    <option value="completed">${t.statusCompleted}</option>
+                    <option value="overdue">${t.statusOverdue}</option>
+                `;
+            }
+            
+            // 更新排序选项
+            const sortSelect = document.getElementById('reminderSort');
+            if (sortSelect) {
+                sortSelect.innerHTML = `
+                    <option value="time">${t.sortByTime}</option>
+                    <option value="priority">${t.sortByPriority}</option>
+                    <option value="title">${t.sortByTitle}</option>
+                `;
+            }
+            
+            // 更新重复频率选项
+            const repeatSelect = document.getElementById('reminderRepeat');
+            if (repeatSelect) {
+                repeatSelect.innerHTML = `
+                    <option value="once">${t.once}</option>
+                    <option value="daily" selected>${t.daily}</option>
+                    <option value="weekly">${t.weekly}</option>
+                    <option value="weekdays">${t.weekdays}</option>
+                    <option value="custom">${t.custom}</option>
+                `;
+            }
+            
+            // 更新优先级选项
+            const prioritySelect = document.getElementById('reminderPriority');
+            if (prioritySelect) {
+                prioritySelect.innerHTML = `
+                    <option value="low">${t.low}</option>
+                    <option value="medium" selected>${t.medium}</option>
+                    <option value="high">${t.high}</option>
+                `;
+            }
+            
+            // 更新高级选项
+            const advancedHeader = document.getElementById('advancedOptionsHeader');
+            if (advancedHeader) {
+                advancedHeader.querySelector('span').textContent = t.advancedOptions;
+            }
+            
+            // 更新语音提醒按钮
+            document.getElementById('dismissAlert').innerHTML = `<i class="fas fa-check"></i> ${t.confirm}`;
+            document.getElementById('snoozeAlert').innerHTML = `<i class="fas fa-clock"></i> ${t.snooze}`;
+            document.getElementById('viewDetailsAlert').innerHTML = `<i class="fas fa-info-circle"></i> ${t.viewDetails}`;
+        }
+
+        // 初始化应用
+        document.addEventListener('DOMContentLoaded', function() {
+            // 初始化模拟数据
+            initMockData();
+            
+            // 设置当前用户
+            currentUser = mockUsers[0];
+            const userAvatar = document.getElementById('userAvatar');
+            userAvatar.textContent = currentUser.name.charAt(0);
+            document.getElementById('userName').value = currentUser.name;
+            document.getElementById('userEmail').value = currentUser.email;
+            document.getElementById('userTimezone').value = currentUser.timezone;
+            
+            // 设置用户头像点击事件
+            userAvatar.addEventListener('click', function() {
+                // 在实际应用中，这里可以显示用户菜单
+                alert('用户菜单：\n1. 个人资料\n2. 登出\n3. 帮助');
+            });
+            
+            // 语言切换事件
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    switchLanguage(this.dataset.lang);
+                });
+            });
+            
+            // 标签页切换
+            document.querySelectorAll('.tab, .nav-item').forEach(item => {
+                item.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const tabId = this.dataset.tab;
+                    
+                    // 更新标签页
+                    document.querySelectorAll('.tab').forEach(tab => {
+                        tab.classList.remove('active');
+                    });
+                    document.querySelector(`.tab[data-tab="${tabId}"]`).classList.add('active');
+                    
+                    // 更新内容
+                    document.querySelectorAll('.tab-content').forEach(content => {
+                        content.classList.remove('active');
+                    });
+                    document.getElementById(`${tabId}-tab`).classList.add('active');
+                    
+                    // 更新底部导航
+                    document.querySelectorAll('.nav-item').forEach(navItem => {
+                        navItem.classList.remove('active');
+                    });
+                    document.querySelector(`.nav-item[data-tab="${tabId}"]`).classList.add('active');
+                    
+                    // 如果是统计页面，更新统计数据
+                    if (tabId === 'statistics') {
+                        updateStatistics();
+                    }
+                });
+            });
+            
+            // 初始化提醒列表
+            renderReminders();
+            
+            // 初始化人员列表
+            renderPeople();
+            
+            // 初始化通知列表
+            updateNotificationCount();
+            
+            // 添加提醒按钮事件
+            document.getElementById('addReminderBtn').addEventListener('click', function() {
+                document.getElementById('addReminderModal').classList.add('active');
+            });
+            
+            // 添加人员按钮事件
+            document.getElementById('addPersonBtn').addEventListener('click', function() {
+                document.getElementById('addPersonModal').classList.add('active');
+            });
+            
+            // 通知图标点击事件
+            document.getElementById('notificationBell').addEventListener('click', function() {
+                showNotificationModal();
+            });
+            
+            // 关闭模态框事件
+            document.getElementById('closeReminderModal').addEventListener('click', function() {
+                document.getElementById('addReminderModal').classList.remove('active');
+            });
+            
+            document.getElementById('closePersonModal').addEventListener('click', function() {
+                document.getElementById('addPersonModal').classList.remove('active');
+            });
+            
+            document.getElementById('closeNotificationModal').addEventListener('click', function() {
+                document.getElementById('notificationModal').classList.remove('active');
+            });
+            
+            // 点击模态框外部关闭
+            document.querySelectorAll('.modal').forEach(modal => {
+                modal.addEventListener('click', function(e) {
+                    if (e.target === this) {
+                        this.classList.remove('active');
+                    }
+                });
+            });
+            
+            // 提醒表单提交
+            document.getElementById('reminderForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                addReminder();
+                document.getElementById('addReminderModal').classList.remove('active');
+            });
+            
+            // 人员表单提交
+            document.getElementById('personForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                addPerson();
+                document.getElementById('addPersonModal').classList.remove('active');
+            });
+            
+            // 保存设置
+            document.getElementById('saveSettingsBtn').addEventListener('click', function() {
+                saveSettings();
+            });
+            
+            // 更新个人资料
+            document.getElementById('updateProfileBtn').addEventListener('click', function() {
+                updateProfile();
+            });
+            
+            // 语音提醒控制
+            document.getElementById('dismissAlert').addEventListener('click', function() {
+                stopVoiceAlert();
+            });
+            
+            document.getElementById('snoozeAlert').addEventListener('click', function() {
+                snoozeAlert();
+            });
+            
+            document.getElementById('viewDetailsAlert').addEventListener('click', function() {
+                if (currentAlertReminder) {
+                    alert(`提醒详情：\n标题：${currentAlertReminder.title}\n时间：${currentAlertReminder.time}\n描述：${currentAlertReminder.description || '无'}`);
+                }
+            });
+            
+            // 高级选项切换
+            document.getElementById('advancedOptionsHeader').addEventListener('click', function() {
+                this.classList.toggle('active');
+                document.getElementById('advancedOptionsContent').classList.toggle('active');
+            });
+            
+            // 重复频率变化
+            document.getElementById('reminderRepeat').addEventListener('change', function() {
+                const customOptions = document.getElementById('customRepeatOptions');
+                if (this.value === 'custom') {
+                    customOptions.style.display = 'block';
+                } else {
+                    customOptions.style.display = 'none';
+                }
+            });
+            
+            // 提醒过滤器
+            document.getElementById('reminderFilter').addEventListener('change', function() {
+                renderReminders();
+            });
+            
+            // 提醒排序
+            document.getElementById('reminderSort').addEventListener('change', function() {
+                renderReminders();
+            });
+            
+            // 标记所有通知为已读
+            document.getElementById('markAllRead').addEventListener('click', function() {
+                markAllNotificationsAsRead();
+            });
+            
+            // 初始化推送通知
+            initPushNotifications();
+            
+            // 初始化实时同步
+            initRealtimeSync();
+            
+            // 模拟一个提醒
+            setTimeout(() => {
+                // 随机选择一个进行中的提醒
+                const activeReminders = mockReminders.filter(r => r.status === 'active');
+                if (activeReminders.length > 0) {
+                    const randomReminder = activeReminders[0];
+                    showVoiceAlert(randomReminder.title, randomReminder);
+                }
+            }, 5000);
+            
+            // 初始化文本
+            updateTexts();
+            
+            // 初始化统计
+            updateStatistics();
+        });
+
+        // 初始化模拟数据
+        function initMockData() {
+            // 模拟用户数据
+            mockUsers = [
+                { id: 'user1', name: '张明', email: 'zhangming@example.com', timezone: 'Asia/Shanghai' },
+                { id: 'user2', name: '父亲', email: 'father@example.com', timezone: 'Asia/Shanghai' },
+                { id: 'user3', name: '母亲', email: 'mother@example.com', timezone: 'Asia/Shanghai' }
+            ];
+            
+            // 模拟提醒数据
+            mockReminders = [
+                { 
+                    id: 1, 
+                    title: "早上7点服药", 
+                    time: "07:00", 
+                    repeat: "daily", 
+                    personId: "user2", 
+                    personName: "父亲", 
+                    fromId: "user1", 
+                    from: "张明", 
+                    status: "active", 
+                    date: new Date(),
+                    priority: "high",
+                    description: "降压药，每次一片",
+                    advance: 0,
+                    requireConfirmation: true,
+                    allowSnooze: true,
+                    createdAt: new Date(),
+                    completedAt: null
+                },
+                { 
+                    id: 2, 
+                    title: "上午10点运动", 
+                    time: "10:00", 
+                    repeat: "daily", 
+                    personId: "user3", 
+                    personName: "母亲", 
+                    fromId: "user1", 
+                    from: "李华", 
+                    status: "pending", 
+                    date: new Date(),
+                    priority: "medium",
+                    description: "散步30分钟",
+                    advance: 10,
+                    requireConfirmation: true,
+                    allowSnooze: true,
+                    createdAt: new Date(),
+                    completedAt: null
+                },
+                { 
+                    id: 3, 
+                    title: "下午3点休息", 
+                    time: "15:00", 
+                    repeat: "daily", 
+                    personId: "user1", 
+                    personName: "自己", 
+                    fromId: "system", 
+                    from: "系统", 
+                    status: "completed", 
+                    date: new Date(),
+                    priority: "low",
+                    description: "午休30分钟",
+                    advance: 5,
+                    requireConfirmation: false,
+                    allowSnooze: false,
+                    createdAt: new Date(),
+                    completedAt: new Date()
+                },
+                { 
+                    id: 4, 
+                    title: "晚上8点散步", 
+                    time: "20:00", 
+                    repeat: "weekdays", 
+                    personId: "user2", 
+                    personName: "父亲", 
+                    fromId: "user1", 
+                    from: "张明", 
+                    status: "active", 
+                    date: new Date(),
+                    priority: "medium",
+                    description: "晚餐后散步",
+                    advance: 0,
+                    requireConfirmation: true,
+                    allowSnooze: true,
+                    createdAt: new Date(),
+                    completedAt: null
+                }
+            ];
+            
+            // 模拟人员数据
+            mockPeople = [
+                { id: "user2", name: "父亲", email: "father@example.com", relationship: "parent", status: "connected", permissions: "manage" },
+                { id: "user3", name: "母亲", email: "mother@example.com", relationship: "parent", status: "connected", permissions: "view" },
+                { id: "user4", name: "张明", email: "zhangming@example.com", relationship: "child", status: "pending", permissions: "manage" }
+            ];
+            
+            // 模拟通知数据
+            mockNotifications = [
+                { id: 1, type: "reminder", title: "新的提醒请求", content: "张明为您设置了新的提醒", time: "10分钟前", read: false },
+                { id: 2, type: "request", title: "人员添加请求", content: "李华希望添加您为提醒人员", time: "1小时前", read: false },
+                { id: 3, type: "system", title: "系统通知", content: "您的提醒已完成", time: "昨天", read: true }
+            ];
+        }
+
+        // 渲染提醒事项
+        function renderReminders() {
+            const todayRemindersList = document.getElementById('todayReminders');
+            const allRemindersList = document.getElementById('allReminders');
+            
+            // 清空列表
+            todayRemindersList.innerHTML = '';
+            allRemindersList.innerHTML = '';
+            
+            // 获取过滤和排序选项
+            const filter = document.getElementById('reminderFilter').value;
+            const sort = document.getElementById('reminderSort').value;
+            
+            // 过滤提醒
+            let filteredReminders = [...mockReminders];
+            if (filter !== 'all') {
+                filteredReminders = filteredReminders.filter(r => r.status === filter);
+            }
+            
+            // 排序提醒
+            filteredReminders.sort((a, b) => {
+                if (sort === 'time') {
+                    return a.time.localeCompare(b.time);
+                } else if (sort === 'priority') {
+                    const priorityOrder = { high: 0, medium: 1, low: 2 };
+                    return priorityOrder[a.priority] - priorityOrder[b.priority];
+                } else if (sort === 'title') {
+                    return a.title.localeCompare(b.title);
+                }
+                return 0;
+            });
+            
+            // 添加提醒事项
+            filteredReminders.forEach(reminder => {
+                const reminderItem = createReminderElement(reminder);
+                allRemindersList.appendChild(reminderItem);
+                
+                // 如果是今天的提醒，添加到今日列表
+                if (reminder.status !== 'completed' && reminder.status !== 'overdue') {
+                    const today = new Date().toDateString();
+                    const reminderDate = new Date(reminder.date).toDateString();
+                    if (today === reminderDate) {
+                        todayRemindersList.appendChild(reminderItem.cloneNode(true));
+                    }
+                }
+            });
+            
+            // 如果没有今日提醒
+            if (todayRemindersList.children.length === 0) {
+                todayRemindersList.innerHTML = '<li class="reminder-item">今日没有提醒事项</li>';
+            }
+            
+            // 如果没有所有提醒
+            if (allRemindersList.children.length === 0) {
+                allRemindersList.innerHTML = '<li class="reminder-item">暂无提醒事项</li>';
             }
         }
 
-        // 4. 監聽前台訊息 (網頁開著時收到通知)
-        onMessage(messaging, (payload) => {
-            console.log('收到前台訊息: ', payload);
-            var vConsole = new window.VConsole();
-            if (payload.data && payload.data.sound) {
-                playCustomSound(payload.data.sound);
-                if ('vibrate' in navigator) {
-                  console.log('瀏覽器支援震動 API');
-                    navigator.vibrate(2000);
-                } else {
-                  console.log('不支援震動 API');
-                }
-              }
-            alert(`收到通知：${payload.notification.title}\n${payload.notification.body}`);
-        });
+        // 创建提醒事项元素
+        function createReminderElement(reminder) {
+            const t = translations[currentLang];
+            const li = document.createElement('li');
+            
+            // 设置状态类
+            let statusClass = '';
+            let statusText = '';
+            if (reminder.status === 'active') {
+                statusClass = 'status-active';
+                statusText = t.statusActive;
+                li.classList.add('warning');
+            } else if (reminder.status === 'pending') {
+                statusClass = 'status-pending';
+                statusText = t.statusPending;
+                li.classList.add('danger');
+            } else if (reminder.status === 'completed') {
+                statusClass = 'status-completed';
+                statusText = t.statusCompleted;
+                li.classList.add('success');
+            } else if (reminder.status === 'overdue') {
+                statusClass = 'status-overdue';
+                statusText = t.statusOverdue;
+                li.classList.add('danger');
+            } else if (reminder.status === 'snoozed') {
+                statusClass = 'status-snoozed';
+                statusText = t.statusSnoozed;
+                li.classList.add('info');
+            }
+            
+            li.className = `reminder-item ${reminder.status}`;
+            
+            const repeatText = t[reminder.repeat] || reminder.repeat;
+            const priorityText = t[reminder.priority] || reminder.priority;
+            
+            li.innerHTML = `
+                <div class="reminder-info">
+                    <h4>${reminder.title} <small>(${priorityText})</small></h4>
+                    <div class="reminder-meta">
+                        <span><i class="far fa-clock"></i> ${repeatText} ${reminder.time}</span>
+                        <span><i class="fas fa-user"></i> ${t.from}: ${reminder.from}</span>
+                        ${reminder.advance > 0 ? `<span><i class="fas fa-bell"></i> 提前${reminder.advance}分钟</span>` : ''}
+                    </div>
+                    ${reminder.description ? `<p style="margin-top: 5px; font-size: 0.9rem; color: #666;">${reminder.description}</p>` : ''}
+                </div>
+                <div class="reminder-actions">
+                    <span class="status-badge ${statusClass}">${statusText}</span>
+                    ${reminder.status === 'active' ? `<button class="btn btn-success btn-sm complete-btn" data-id="${reminder.id}">${t.complete}</button>` : ''}
+                    ${reminder.status === 'pending' ? `<button class="btn btn-success btn-sm accept-btn" data-id="${reminder.id}">${t.accept}</button>
+                                                      <button class="btn btn-danger btn-sm reject-btn" data-id="${reminder.id}">${t.reject}</button>` : ''}
+                    ${reminder.status === 'overdue' ? `<button class="btn btn-warning btn-sm reschedule-btn" data-id="${reminder.id}">重新安排</button>` : ''}
+                </div>
+            `;
+            
+            // 添加事件监听器
+            if (reminder.status === 'active') {
+                li.querySelector('.complete-btn').addEventListener('click', function() {
+                    completeReminder(parseInt(this.dataset.id));
+                });
+            }
+            
+            if (reminder.status === 'pending') {
+                li.querySelector('.accept-btn').addEventListener('click', function() {
+                    acceptReminder(parseInt(this.dataset.id));
+                });
+                
+                li.querySelector('.reject-btn').addEventListener('click', function() {
+                    rejectReminder(parseInt(this.dataset.id));
+                });
+            }
+            
+            if (reminder.status === 'overdue') {
+                li.querySelector('.reschedule-btn').addEventListener('click', function() {
+                    rescheduleReminder(parseInt(this.dataset.id));
+                });
+            }
+            
+            return li;
+        }
 
-        initNotification();
+        // 渲染人员列表
+        function renderPeople() {
+            const peopleList = document.getElementById('peopleList');
+            const pendingRequests = document.getElementById('pendingRequests');
+            const reminderPersonSelect = document.getElementById('reminderPerson');
+            
+            // 清空列表
+            peopleList.innerHTML = '';
+            pendingRequests.innerHTML = '';
+            reminderPersonSelect.innerHTML = '<option value="">选择提醒对象</option>';
+            
+            // 添加人员
+            mockPeople.forEach(person => {
+                // 添加到人员列表
+                const personItem = createPersonElement(person);
+                peopleList.appendChild(personItem);
+                
+                // 添加到下拉选择
+                const option = document.createElement('option');
+                option.value = person.id;
+                option.textContent = person.name;
+                reminderPersonSelect.appendChild(option);
+                
+                // 如果是待处理请求，添加到待处理列表
+                if (person.status === 'pending') {
+                    const requestItem = createRequestElement(person);
+                    pendingRequests.appendChild(requestItem);
+                }
+            });
+            
+            // 如果没有人员
+            if (peopleList.children.length === 0) {
+                peopleList.innerHTML = '<li class="reminder-item">暂无提醒人员</li>';
+            }
+            
+            // 如果没有待处理请求
+            if (pendingRequests.children.length === 0) {
+                pendingRequests.innerHTML = '<li class="reminder-item">暂无待处理请求</li>';
+            }
+        }
+
+        // 创建人员元素
+        function createPersonElement(person) {
+            const t = translations[currentLang];
+            const li = document.createElement('li');
+            li.className = 'reminder-item';
+            
+            const relationshipText = t[person.relationship] || person.relationship;
+            const statusText = person.status === 'connected' ? t.statusActive : t.statusPending;
+            const permissionsText = person.permissions === 'manage' ? '管理权限' : '查看权限';
+            
+            li.innerHTML = `
+                <div class="reminder-info">
+                    <h4>${person.name}</h4>
+                    <div class="reminder-meta">
+                        <span><i class="fas fa-envelope"></i> ${person.email}</span>
+                        <span><i class="fas fa-user-friends"></i> ${relationshipText}</span>
+                        <span><i class="fas fa-key"></i> ${permissionsText}</span>
+                    </div>
+                </div>
+                <div class="reminder-actions">
+                    <span class="status-badge ${person.status === 'connected' ? 'status-active' : 'status-pending'}">${statusText}</span>
+                </div>
+            `;
+            
+            return li;
+        }
+
+        // 创建请求元素
+        function createRequestElement(person) {
+            const t = translations[currentLang];
+            const li = document.createElement('li');
+            li.className = 'reminder-item danger';
+            
+            const relationshipText = t[person.relationship] || person.relationship;
+            
+            li.innerHTML = `
+                <div class="reminder-info">
+                    <h4>${person.name}</h4>
+                    <div class="reminder-meta">
+                        <span><i class="fas fa-envelope"></i> ${person.email}</span>
+                        <span><i class="fas fa-user-friends"></i> ${relationshipText}</span>
+                    </div>
+                </div>
+                <div class="reminder-actions">
+                    <button class="btn btn-success btn-sm accept-request-btn" data-id="${person.id}">${t.accept}</button>
+                    <button class="btn btn-danger btn-sm reject-request-btn" data-id="${person.id}">${t.reject}</button>
+                </div>
+            `;
+            
+            // 添加事件监听器
+            li.querySelector('.accept-request-btn').addEventListener('click', function() {
+                acceptRequest(this.dataset.id);
+            });
+            
+            li.querySelector('.reject-request-btn').addEventListener('click', function() {
+                rejectRequest(this.dataset.id);
+            });
+            
+            return li;
+        }
+
+        // 添加新提醒
+        function addReminder() {
+            const title = document.getElementById('reminderTitle').value;
+            const time = document.getElementById('reminderTime').value;
+            const repeat = document.getElementById('reminderRepeat').value;
+            const personId = document.getElementById('reminderPerson').value;
+            const description = document.getElementById('reminderDescription').value;
+            const priority = document.getElementById('reminderPriority').value;
+            const advance = parseInt(document.getElementById('reminderAdvance').value);
+            const requireConfirmation = document.getElementById('reminderRequireConfirmation').checked;
+            const allowSnooze = document.getElementById('reminderAllowSnooze').checked;
+            
+            // 获取人员姓名
+            const personSelect = document.getElementById('reminderPerson');
+            const personName = personSelect.options[personSelect.selectedIndex].text;
+            
+            // 创建新提醒对象
+            const newReminder = {
+                id: mockReminders.length + 1,
+                title: title,
+                time: time,
+                repeat: repeat,
+                personId: personId,
+                personName: personName,
+                fromId: currentUser.id,
+                from: currentUser.name,
+                status: 'pending',
+                date: new Date(),
+                priority: priority,
+                description: description,
+                advance: advance,
+                requireConfirmation: requireConfirmation,
+                allowSnooze: allowSnooze,
+                createdAt: new Date(),
+                completedAt: null
+            };
+            
+            // 添加到模拟数据
+            mockReminders.push(newReminder);
+            
+            // 重新渲染提醒列表
+            renderReminders();
+            
+            // 发送通知
+            addNotification('reminder', '新的提醒请求', `${currentUser.name}为您设置了新的提醒: ${title}`, false);
+            
+            // 发送推送通知（如果启用）
+            if (isPushEnabled) {
+                sendPushNotification('新的提醒请求', `${currentUser.name}为您设置了新的提醒`);
+            }
+            
+            // 重置表单
+            document.getElementById('reminderForm').reset();
+            
+            // 显示成功消息
+            alert('提醒已创建并发送给' + personName);
+        }
+
+        // 添加人员
+        function addPerson() {
+            const name = document.getElementById('personName').value;
+            const email = document.getElementById('personEmail').value;
+            const relationship = document.getElementById('personRelationship').value;
+            const permissions = document.getElementById('personPermissions').value;
+            
+            // 创建新人员对象
+            const newPerson = {
+                id: 'user' + (mockPeople.length + 1),
+                name: name,
+                email: email,
+                relationship: relationship,
+                status: 'pending',
+                permissions: permissions
+            };
+            
+            // 添加到模拟数据
+            mockPeople.push(newPerson);
+            
+            // 重新渲染人员列表
+            renderPeople();
+            
+            // 发送通知
+            addNotification('request', '人员添加请求', `${currentUser.name}希望添加您为提醒人员`, false);
+            
+            // 重置表单
+            document.getElementById('personForm').reset();
+            
+            // 显示成功消息
+            alert('邀请已发送给' + name);
+        }
+
+        // 完成提醒
+        function completeReminder(id) {
+            const reminder = mockReminders.find(r => r.id === id);
+            if (reminder) {
+                reminder.status = 'completed';
+                reminder.completedAt = new Date();
+                renderReminders();
+                
+                // 发送通知给设置者
+                addNotification('system', '提醒已完成', `${reminder.personName}已完成提醒: ${reminder.title}`, false);
+                
+                alert('提醒已完成');
+            }
+        }
+
+        // 接受提醒
+        function acceptReminder(id) {
+            const reminder = mockReminders.find(r => r.id === id);
+            if (reminder) {
+                reminder.status = 'active';
+                renderReminders();
+                
+                // 发送通知给设置者
+                addNotification('system', '提醒已接受', `${reminder.personName}已接受您的提醒: ${reminder.title}`, false);
+                
+                alert('提醒已接受');
+            }
+        }
+
+        // 拒绝提醒
+        function rejectReminder(id) {
+            const index = mockReminders.findIndex(r => r.id === id);
+            if (index !== -1) {
+                const reminder = mockReminders[index];
+                mockReminders.splice(index, 1);
+                renderReminders();
+                
+                // 发送通知给设置者
+                addNotification('system', '提醒已拒绝', `${reminder.personName}已拒绝您的提醒: ${reminder.title}`, false);
+                
+                alert('提醒已拒绝');
+            }
+        }
+
+        // 重新安排提醒
+        function rescheduleReminder(id) {
+            const reminder = mockReminders.find(r => r.id === id);
+            if (reminder) {
+                const newTime = prompt('请重新安排时间 (HH:MM)', reminder.time);
+                if (newTime) {
+                    reminder.time = newTime;
+                    reminder.status = 'active';
+                    reminder.date = new Date();
+                    renderReminders();
+                    
+                    // 发送通知给设置者
+                    addNotification('system', '提醒已重新安排', `${reminder.personName}已将提醒重新安排到${newTime}: ${reminder.title}`, false);
+                    
+                    alert('提醒已重新安排');
+                }
+            }
+        }
+
+        // 接受请求
+        function acceptRequest(id) {
+            const person = mockPeople.find(p => p.id === id);
+            if (person) {
+                person.status = 'connected';
+                renderPeople();
+                
+                // 发送通知给请求者
+                addNotification('system', '请求已接受', `${person.name}已接受您的添加请求`, false);
+                
+                alert('请求已接受');
+            }
+        }
+
+        // 拒绝请求
+        function rejectRequest(id) {
+            const index = mockPeople.findIndex(p => p.id === id);
+            if (index !== -1) {
+                const person = mockPeople[index];
+                mockPeople.splice(index, 1);
+                renderPeople();
+                
+                // 发送通知给请求者
+                addNotification('system', '请求已拒绝', `${person.name}已拒绝您的添加请求`, false);
+                
+                alert('请求已拒绝');
+            }
+        }
+
+        // 保存设置
+        function saveSettings() {
+            const volume = document.getElementById('volumeControl').value;
+            const interval = document.getElementById('repeatInterval').value;
+            const autoStart = document.getElementById('autoStartReminders').checked;
+            const enablePush = document.getElementById('enablePushNotifications').checked;
+            const enableSnooze = document.getElementById('enableReminderSnooze').checked;
+            
+            localStorage.setItem('volume', volume);
+            localStorage.setItem('interval', interval);
+            localStorage.setItem('autoStart', autoStart);
+            localStorage.setItem('enablePush', enablePush);
+            localStorage.setItem('enableSnooze', enableSnooze);
+            
+            // 更新推送通知设置
+            if (enablePush && !isPushEnabled) {
+                enablePushNotifications();
+            } else if (!enablePush && isPushEnabled) {
+                disablePushNotifications();
+            }
+            
+            alert('设置已保存');
+        }
+
+        // 更新个人资料
+        function updateProfile() {
+            const name = document.getElementById('userName').value;
+            const email = document.getElementById('userEmail').value;
+            const timezone = document.getElementById('userTimezone').value;
+            
+            // 更新当前用户
+            currentUser.name = name;
+            currentUser.email = email;
+            currentUser.timezone = timezone;
+            
+            localStorage.setItem('userName', name);
+            localStorage.setItem('userEmail', email);
+            localStorage.setItem('userTimezone', timezone);
+            
+            // 更新用户头像
+            document.getElementById('userAvatar').textContent = name.charAt(0);
+            
+            alert('个人资料已更新');
+        }
+
+        // 语音提醒相关
+        function showVoiceAlert(text, reminder) {
+            currentAlertText = text;
+            currentAlertReminder = reminder;
+            document.getElementById('alertText').textContent = text;
+            document.getElementById('voiceAlert').classList.add('active');
+            
+            // 使用Web Speech API进行语音播报
+            speakText(text);
+            
+            // 设置重复提醒
+            const interval = parseInt(localStorage.getItem('interval') || document.getElementById('repeatInterval').value);
+            voiceAlertInterval = setInterval(() => {
+                speakText(text);
+            }, interval * 1000);
+        }
+
+        // 停止语音提醒
+        function stopVoiceAlert() {
+            document.getElementById('voiceAlert').classList.remove('active');
+            clearInterval(voiceAlertInterval);
+            
+            // 标记为完成
+            if (currentAlertReminder) {
+                const reminder = mockReminders.find(r => r.id === currentAlertReminder.id);
+                if (reminder) {
+                    reminder.status = 'completed';
+                    reminder.completedAt = new Date();
+                    renderReminders();
+                    
+                    // 发送通知给设置者
+                    addNotification('system', '提醒已完成', `${reminder.personName}已完成提醒: ${reminder.title}`, false);
+                }
+            }
+        }
+
+        // 稍后提醒
+        function snoozeAlert() {
+            document.getElementById('voiceAlert').classList.remove('active');
+            clearInterval(voiceAlertInterval);
+            
+            // 5分钟后再次提醒
+            setTimeout(() => {
+                showVoiceAlert(currentAlertText, currentAlertReminder);
+            }, 5 * 60 * 1000);
+            
+            // 更新提醒状态
+            if (currentAlertReminder) {
+                const reminder = mockReminders.find(r => r.id === currentAlertReminder.id);
+                if (reminder) {
+                    reminder.status = 'snoozed';
+                    renderReminders();
+                }
+            }
+            
+            alert('5分钟后再次提醒');
+        }
+
+        // 文本转语音
+        function speakText(text) {
+            if ('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = currentLang === 'zh' ? 'zh-CN' : 'en-US';
+                utterance.volume = parseInt(localStorage.getItem('volume') || document.getElementById('volumeControl').value) / 100;
+                speechSynthesis.speak(utterance);
+            } else {
+                console.log('您的浏览器不支持文本转语音功能');
+            }
+        }
+
+        // 通知相关功能
+        function addNotification(type, title, content, read) {
+            const newNotification = {
+                id: mockNotifications.length + 1,
+                type: type,
+                title: title,
+                content: content,
+                time: '刚刚',
+                read: read
+            };
+            
+            mockNotifications.unshift(newNotification);
+            updateNotificationCount();
+            
+            // 如果通知中心已打开，更新列表
+            if (document.getElementById('notificationModal').classList.contains('active')) {
+                showNotificationModal();
+            }
+        }
+
+        function updateNotificationCount() {
+            const unreadCount = mockNotifications.filter(n => !n.read).length;
+            const notificationCount = document.getElementById('notificationCount');
+            notificationCount.textContent = unreadCount;
+            notificationCount.style.display = unreadCount > 0 ? 'flex' : 'none';
+        }
+
+        function showNotificationModal() {
+            const notificationList = document.getElementById('notificationList');
+            notificationList.innerHTML = '';
+            
+            mockNotifications.forEach(notification => {
+                const li = document.createElement('li');
+                li.className = `notification-item ${notification.read ? '' : 'unread'}`;
+                
+                let iconClass = '';
+                if (notification.type === 'reminder') {
+                    iconClass = 'reminder';
+                } else if (notification.type === 'request') {
+                    iconClass = 'request';
+                } else if (notification.type === 'system') {
+                    iconClass = 'system';
+                }
+                
+                li.innerHTML = `
+                    <div class="notification-icon ${iconClass}">
+                        <i class="fas fa-${notification.type === 'reminder' ? 'bell' : notification.type === 'request' ? 'user-plus' : 'info-circle'}"></i>
+                    </div>
+                    <div class="notification-content">
+                        <div><strong>${notification.title}</strong></div>
+                        <div>${notification.content}</div>
+                        <div class="notification-time">${notification.time}</div>
+                    </div>
+                `;
+                
+                li.addEventListener('click', function() {
+                    if (!notification.read) {
+                        notification.read = true;
+                        updateNotificationCount();
+                        this.classList.remove('unread');
+                    }
+                });
+                
+                notificationList.appendChild(li);
+            });
+            
+            document.getElementById('notificationModal').classList.add('active');
+        }
+
+        function markAllNotificationsAsRead() {
+            mockNotifications.forEach(notification => {
+                notification.read = true;
+            });
+            updateNotificationCount();
+            
+            // 更新通知列表
+            const notificationItems = document.querySelectorAll('.notification-item');
+            notificationItems.forEach(item => {
+                item.classList.remove('unread');
+            });
+        }
+
+        // 推送通知功能
+        function initPushNotifications() {
+            // 检查浏览器是否支持推送通知
+            if (!('Notification' in window) || !('serviceWorker' in navigator)) {
+                console.log('浏览器不支持推送通知');
+                return;
+            }
+            
+            // 检查用户是否已授予通知权限
+            if (Notification.permission === 'granted') {
+                isPushEnabled = true;
+                document.getElementById('enablePushNotifications').checked = true;
+                registerServiceWorker();
+            } else if (Notification.permission !== 'denied') {
+                // 请求通知权限
+                Notification.requestPermission().then(permission => {
+                    if (permission === 'granted') {
+                        isPushEnabled = true;
+                        document.getElementById('enablePushNotifications').checked = true;
+                        registerServiceWorker();
+                    }
+                });
+            }
+            
+            // 监听推送消息
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.addEventListener('message', event => {
+                    const { title, body } = event.data;
+                    showPushNotification(title, body);
+                });
+            }
+        }
+
+        function registerServiceWorker() {
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('./firebase-messaging-sw.js').then(registration => {
+                    console.log('Service Worker 注册成功:', registration);
+                    serviceWorkerRegistration = registration;
+                    
+                    // 请求推送权限
+                    return registration.pushManager.getSubscription()
+                        .then(subscription => {
+                            if (!subscription) {
+                                return subscribeUser(registration);
+                            }
+                            return subscription;
+                        });
+                }).catch(error => {
+                    console.log('Service Worker 注册失败:', error);
+                });
+            }
+        }
+
+        function subscribeUser(registration) {
+            const applicationServerKey = urlBase64ToUint8Array('BHc46KlLoJvBJrCCjDERNc7lJr453G6P54pod_NaQjjdy2z_F-0awf1nEN8ncGVS7JzIVsk9lLHfs6TrphZmxgY');
+            
+            return registration.pushManager.subscribe({
+                userVisibleOnly: true,
+                applicationServerKey: applicationServerKey
+            }).then(subscription => {
+                console.log('用户已订阅推送:', subscription);
+                // 在这里将订阅信息发送到服务器
+                return subscription;
+            }).catch(error => {
+                console.log('推送订阅失败:', error);
+            });
+        }
+
+        function urlBase64ToUint8Array(base64String) {
+            const padding = '='.repeat((4 - base64String.length % 4) % 4);
+            const base64 = (base64String + padding)
+                .replace(/\-/g, '+')
+                .replace(/_/g, '/');
+            
+            const rawData = window.atob(base64);
+            const outputArray = new Uint8Array(rawData.length);
+            
+            for (let i = 0; i < rawData.length; ++i) {
+                outputArray[i] = rawData.charCodeAt(i);
+            }
+            return outputArray;
+        }
+
+        function enablePushNotifications() {
+            if (!isPushEnabled) {
+                initPushNotifications();
+            }
+        }
+
+        function disablePushNotifications() {
+            isPushEnabled = false;
+            if (serviceWorkerRegistration) {
+                serviceWorkerRegistration.pushManager.getSubscription()
+                    .then(subscription => {
+                        if (subscription) {
+                            subscription.unsubscribe();
+                        }
+                    });
+            }
+        }
+
+        function sendPushNotification(title, body) {
+            if (!isPushEnabled || !serviceWorkerRegistration) return;
+            
+            // 在实际应用中，这里应该通过服务器发送推送通知
+            // 这里我们模拟发送推送通知
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.controller.postMessage({
+                    type: 'PUSH_NOTIFICATION',
+                    title: title,
+                    body: body
+                });
+            }
+        }
+
+        function showPushNotification(title, body) {
+            if (Notification.permission === 'granted') {
+                const notification = new Notification(title, {
+                    body: body,
+                    icon: '/icon.png'
+                });
+                
+                notification.onclick = function() {
+                    window.focus();
+                    notification.close();
+                };
+            }
+        }
+
+        // 实时同步功能
+        function initRealtimeSync() {
+            // 在实际应用中，这里应该使用Firebase实时监听
+            // 这里我们模拟实时同步
+            
+            // 模拟网络连接状态
+            updateConnectionStatus(true);
+            
+            // 模拟网络状态变化
+            setInterval(() => {
+                const isOnline = Math.random() > 0.1; // 90%的时间在线
+                updateConnectionStatus(isOnline);
+                
+                if (isOnline) {
+                    // 模拟从服务器同步数据
+                    syncDataFromServer();
+                }
+            }, 30000);
+        }
+
+        function updateConnectionStatus(isOnline) {
+            const indicator = document.getElementById('connectionIndicator');
+            const text = document.getElementById('connectionText');
+            const t = translations[currentLang];
+            
+            if (isOnline) {
+                indicator.className = 'status-indicator status-online';
+                text.textContent = t.online;
+            } else {
+                indicator.className = 'status-indicator status-offline';
+                text.textContent = t.offline;
+            }
+        }
+
+        function syncDataFromServer() {
+            // 在实际应用中，这里应该从Firebase同步数据
+            // 这里我们模拟数据同步
+            console.log('正在从服务器同步数据...');
+            
+            // 模拟新增提醒
+            if (Math.random() > 0.7) { // 30%的几率有新提醒
+                const newReminder = {
+                    id: mockReminders.length + 1,
+                    title: "服务器同步的新提醒",
+                    time: "12:00",
+                    repeat: "daily",
+                    personId: currentUser.id,
+                    personName: currentUser.name,
+                    fromId: "system",
+                    from: "系统",
+                    status: "active",
+                    date: new Date(),
+                    priority: "medium",
+                    description: "这是从服务器同步的提醒",
+                    advance: 0,
+                    requireConfirmation: true,
+                    allowSnooze: true,
+                    createdAt: new Date(),
+                    completedAt: null
+                };
+                
+                mockReminders.push(newReminder);
+                renderReminders();
+                
+                addNotification('system', '新提醒同步', '服务器同步了新的提醒', false);
+            }
+        }
+
+        // 统计功能
+        function updateStatistics() {
+            const statsContent = document.getElementById('statsContent');
+            const complianceChart = document.getElementById('complianceChart');
+            
+            // 计算统计数据
+            const totalReminders = mockReminders.length;
+            const completedReminders = mockReminders.filter(r => r.status === 'completed').length;
+            const pendingReminders = mockReminders.filter(r => r.status === 'pending').length;
+            const activeReminders = mockReminders.filter(r => r.status === 'active').length;
+            const overdueReminders = mockReminders.filter(r => r.status === 'overdue').length;
+            
+            const completionRate = totalReminders > 0 ? Math.round((completedReminders / totalReminders) * 100) : 0;
+            
+            // 按优先级统计
+            const highPriority = mockReminders.filter(r => r.priority === 'high').length;
+            const mediumPriority = mockReminders.filter(r => r.priority === 'medium').length;
+            const lowPriority = mockReminders.filter(r => r.priority === 'low').length;
+            
+            // 更新统计内容
+            statsContent.innerHTML = `
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+                    <div class="card" style="padding: 15px; text-align: center;">
+                        <div style="font-size: 2rem; font-weight: bold; color: var(--primary-color);">${totalReminders}</div>
+                        <div>总提醒数</div>
+                    </div>
+                    <div class="card" style="padding: 15px; text-align: center;">
+                        <div style="font-size: 2rem; font-weight: bold; color: var(--success-color);">${completionRate}%</div>
+                        <div>完成率</div>
+                    </div>
+                </div>
+                
+                <h4>提醒状态分布</h4>
+                <div style="margin-bottom: 20px;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                        <span>已完成: ${completedReminders}</span>
+                        <span>${Math.round((completedReminders / totalReminders) * 100) || 0}%</span>
+                    </div>
+                    <div style="height: 10px; background-color: #eee; border-radius: 5px; overflow: hidden;">
+                        <div style="height: 100%; width: ${(completedReminders / totalReminders) * 100 || 0}%; background-color: var(--success-color);"></div>
+                    </div>
+                    
+                    <div style="display: flex; justify-content: space-between; margin-top: 10px; margin-bottom: 5px;">
+                        <span>进行中: ${activeReminders}</span>
+                        <span>${Math.round((activeReminders / totalReminders) * 100) || 0}%</span>
+                    </div>
+                    <div style="height: 10px; background-color: #eee; border-radius: 5px; overflow: hidden;">
+                        <div style="height: 100%; width: ${(activeReminders / totalReminders) * 100 || 0}%; background-color: var(--warning-color);"></div>
+                    </div>
+                    
+                    <div style="display: flex; justify-content: space-between; margin-top: 10px; margin-bottom: 5px;">
+                        <span>待处理: ${pendingReminders}</span>
+                        <span>${Math.round((pendingReminders / totalReminders) * 100) || 0}%</span>
+                    </div>
+                    <div style="height: 10px; background-color: #eee; border-radius: 5px; overflow: hidden;">
+                        <div style="height: 100%; width: ${(pendingReminders / totalReminders) * 100 || 0}%; background-color: var(--danger-color);"></div>
+                    </div>
+                </div>
+                
+                <h4>优先级分布</h4>
+                <div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                        <span>高优先级: ${highPriority}</span>
+                        <span>${Math.round((highPriority / totalReminders) * 100) || 0}%</span>
+                    </div>
+                    <div style="height: 10px; background-color: #eee; border-radius: 5px; overflow: hidden;">
+                        <div style="height: 100%; width: ${(highPriority / totalReminders) * 100 || 0}%; background-color: var(--danger-color);"></div>
+                    </div>
+                    
+                    <div style="display: flex; justify-content: space-between; margin-top: 10px; margin-bottom: 5px;">
+                        <span>中优先级: ${mediumPriority}</span>
+                        <span>${Math.round((mediumPriority / totalReminders) * 100) || 0}%</span>
+                    </div>
+                    <div style="height: 10px; background-color: #eee; border-radius: 5px; overflow: hidden;">
+                        <div style="height: 100%; width: ${(mediumPriority / totalReminders) * 100 || 0}%; background-color: var(--warning-color);"></div>
+                    </div>
+                    
+                    <div style="display: flex; justify-content: space-between; margin-top: 10px; margin-bottom: 5px;">
+                        <span>低优先级: ${lowPriority}</span>
+                        <span>${Math.round((lowPriority / totalReminders) * 100) || 0}%</span>
+                    </div>
+                    <div style="height: 10px; background-color: #eee; border-radius: 5px; overflow: hidden;">
+                        <div style="height: 100%; width: ${(lowPriority / totalReminders) * 100 || 0}%; background-color: var(--info-color);"></div>
+                    </div>
+                </div>
+            `;
+            
+            // 更新遵守记录图表
+            complianceChart.innerHTML = `
+                <div style="text-align: center;">
+                    <canvas id="complianceChartCanvas" width="300" height="200" style="max-width: 100%;"></canvas>
+                </div>
+            `;
+            
+            // 绘制图表
+            setTimeout(() => {
+                drawComplianceChart();
+            }, 100);
+        }
+
+        function drawComplianceChart() {
+            const canvas = document.getElementById('complianceChartCanvas');
+            if (!canvas) return;
+            
+            const ctx = canvas.getContext('2d');
+			
+			// --- 新增：獲取 CSS 變數的值 ---
+			const rootStyle = getComputedStyle(document.documentElement);
+			const primaryColor = rootStyle.getPropertyValue('--primary-color').trim() || '#007bff'; // 加上預設值備用
+			const darkColor = rootStyle.getPropertyValue('--dark-color').trim() || '#333';
+			// ----------------------------
+            
+            // 模拟最近7天的数据
+            const days = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
+            const complianceData = days.map(() => Math.floor(Math.random() * 100));
+            
+            // 绘制背景
+            ctx.fillStyle = '#f8f9fa';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // 绘制网格线
+            ctx.strokeStyle = '#ddd';
+            ctx.lineWidth = 1;
+            
+            // 水平网格线
+            for (let i = 0; i <= 5; i++) {
+                const y = 20 + i * 30;
+                ctx.beginPath();
+                ctx.moveTo(40, y);
+                ctx.lineTo(canvas.width - 20, y);
+                ctx.stroke();
+                
+                // 刻度标签
+                ctx.fillStyle = '#666';
+                ctx.font = '10px Arial';
+                ctx.textAlign = 'right';
+                ctx.fillText((5 - i) * 20 + '%', 35, y + 3);
+            }
+            
+            // 绘制折线
+            ctx.beginPath();
+            ctx.strokeStyle = primaryColor; // 修改處：使用獲取的變量
+            ctx.lineWidth = 2;
+            
+            for (let i = 0; i < days.length; i++) {
+                const x = 40 + i * 40;
+                const y = 20 + (100 - complianceData[i]) * 1.5;
+                
+                if (i === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+                
+            }
+            
+            ctx.stroke();
+			
+			ctx.stroke(); // 確保先畫線
+    
+			// 繪製數據點（單獨循環，避免 arc 干擾 lineTo）
+			for (let i = 0; i < days.length; i++) {
+				const x = 40 + i * 40;
+				const y = 20 + (100 - complianceData[i]) * 1.5;
+				
+				ctx.fillStyle = primaryColor; // 修改處：使用獲取的變量
+				ctx.beginPath();
+				ctx.arc(x, y, 4, 0, Math.PI * 2);
+				ctx.fill();
+			}
+            
+            // 绘制X轴标签
+            ctx.fillStyle = '#666';
+            ctx.font = '12px Arial';
+            ctx.textAlign = 'center';
+            
+            for (let i = 0; i < days.length; i++) {
+                const x = 40 + i * 40;
+                ctx.fillText(days[i], x, canvas.height - 5);
+            }
+            
+            // 添加标题
+            ctx.fillStyle = darkColor; // 修改處：使用獲取的變量
+            ctx.font = 'bold 14px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('最近7天遵守率', canvas.width / 2, 15);
+        }
+
+        // 辅助函数：获取CSS变量值
+        function var(variable) {
+            return getComputedStyle(document.documentElement).getPropertyValue(variable);
+        }
     </script>
 </body>
 </html>
